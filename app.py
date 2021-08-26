@@ -1,6 +1,8 @@
 import streamlit as st 
 import numpy as np
 from PIL import Image
+import tempfile
+import cv2
 
 from ocr.text_reader import OCR_Reader
 from webapp.utils import demo
@@ -8,39 +10,33 @@ from webapp.pages import Page, Pages_View
 
 st.set_page_config(page_title="OCR Demo WebApp - Alessandro Lamberti", layout="wide")
 
-class Welcome_Page(Page):
-    def __init__(self):
-        Page.__init__(self, "Welcome")
-    
-    def dispatch(self):
-        st.title("OCR Demo Webapp")
-        st.header("Welcome to the OCR Demo App!")
-        st.markdown('By <a href="https://www.linkedin.com/in/alessandro-lamberti/" target="_blank">Alessandro Lamberti</a>' , unsafe_allow_html=True)
-        st.markdown("### Please select the page you want to navigate to.")
-        st.markdown("""
-        - App: try the app, you can choose your own images, or try the pre-loaded demo.
-                    """)
-
-
 class OCR_App_Page(Page):
     def __init__(self):
         Page.__init__(self, "OCR App")
-
-        self.reader = OCR_Reader()
+        st.sidebar.subheader("Parameters:")
+        gpu = st.sidebar.checkbox("Enable GPU usage")
+        batch_size = st.sidebar.slider("Batch size", 1, 10, 1)
+        st.sidebar.write("batch_size>1 will make EasyOCR faster but use more memory")
+        text_threshold = st.sidebar.slider("Text threshold", 0.1, 1.0, 0.7)
+        st.sidebar.write("Text confidence threshold")
+        self.reader = OCR_Reader(gpu=gpu)
     
     def dispatch(self):
         st.header("OCR App")
-        option = st.sidebar.radio('What do you prefer?', options = ['Custom images', 'Demo'])
+        option = st.sidebar.radio('What do you prefer?', options = ['Custom images', 'Demo', 'Custom video'])
 
         if option == 'Custom images':
             content = st.sidebar.file_uploader("Choose a content image", type=['png', 'jpg', 'jpeg'])
             if content:
                 image = np.asarray(Image.open(content).convert('RGB'))
-                image, text = self.reader.read_text(image)
-                st.image(image)
-                st.subheader("Extracted text")
-                for line in text:
-                    st.text(line)            
+                try:
+                    image, text = self.reader.read_text(image)
+                    st.image(image)
+                    st.subheader("Extracted text")
+                    for line in text:
+                        st.text(line)    
+                except:
+                    st.error("I'm sorry, something went wrong. Maybe no text was detected, try another image.")        
             else:
                 st.warning("Please choose a valid image file")
         
@@ -49,11 +45,32 @@ class OCR_App_Page(Page):
             st.image([image, modified], caption=['Original image', "Extracted text"])
             st.subheader("Extracted text")
             for line in text:
-                st.text(line)            
+                st.text(line)        
+
+        elif option == 'Custom video':
+            content = st.sidebar.file_uploader("Choose a video", type=['mp4', 'mkv', 'avi'])
+            if content:
+                tfile = tempfile.NamedTemporaryFile(delete=True) 
+                tfile.write(content.read())
+                vf = cv2.VideoCapture(tfile.name)
+
+                stframe = st.empty()
+
+                while vf.isOpened():
+                    ret, frame = vf.read()
+                    if not ret:
+                        st.warning("Can't receive frame (stream end?). Exiting ...")
+                        break
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    try:
+                        image, text = self.reader.read_text(gray)
+                        stframe.image(image)
+                    except:
+                        continue
+
 
 
 pages_view = Pages_View()
-pages_view.add_page(Welcome_Page())
 pages_view.add_page(OCR_App_Page())
 
 

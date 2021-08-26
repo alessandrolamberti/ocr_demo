@@ -11,6 +11,8 @@ def parse_args():
     parser.add_argument(
         "--img_path", help="path of the image",
         required=True, type=str)
+    parser.add_argument(
+        "--gpu", help="enable or not gpu usage", default=False, type=bool)
 
     return parser.parse_args()
 

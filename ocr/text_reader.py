@@ -11,8 +11,8 @@ class OCR_Reader():
      -languages: list of languages to use for OCR, default is ['en', 'it']
     """
 
-    def __init__(self, languages=['en', 'it']):
-        self.reader = easyocr.Reader(languages)
+    def __init__(self, gpu=True, languages=['en', 'it']):
+        self.reader = easyocr.Reader(languages, gpu=gpu)
 
     def read_text(self, image):
         result = self.reader.readtext(image)
@@ -20,7 +20,7 @@ class OCR_Reader():
         for detection in result:
             top_left = tuple(detection[0][0])
             bottom_right = tuple(detection[0][2])
-            text.append(detection[1])
+            text.append(f"{detection[1]} [Box: {top_left + bottom_right}]")
             img = cv2.rectangle(image,top_left,bottom_right,(0,255,0),2)
         return img, text
 
