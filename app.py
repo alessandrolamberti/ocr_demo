@@ -1,6 +1,5 @@
 import streamlit as st 
 import numpy as np
-import easyocr
 from PIL import Image
 
 from ocr.text_reader import OCR_Reader

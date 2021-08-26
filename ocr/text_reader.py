@@ -22,7 +22,7 @@ class OCR_Reader():
             top_left = tuple(detection[0][0])
             bottom_right = tuple(detection[0][2])
             text.append(detection[1])
-            img = cv2.rectangle(self.image,top_left,bottom_right,(0,255,0),3)
+            img = cv2.rectangle(self.image,top_left,bottom_right,(0,255,0),2)
         return img, text
 
     
