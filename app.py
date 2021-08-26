@@ -14,7 +14,7 @@ class Welcome_Page(Page):
     
     def dispatch(self):
         st.title("OCR Demo Webapp")
-        st.header("Welcome to the Fire Detection demo app!")
+        st.header("Welcome to the OCR Demo App!")
         st.markdown('By <a href="https://www.linkedin.com/in/alessandro-lamberti/" target="_blank">Alessandro Lamberti</a>' , unsafe_allow_html=True)
         st.markdown("### Please select the page you want to navigate to.")
         st.markdown("""
