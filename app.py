@@ -25,6 +25,8 @@ class Welcome_Page(Page):
 class OCR_App_Page(Page):
     def __init__(self):
         Page.__init__(self, "OCR App")
+
+        self.reader = OCR_Reader()
     
     def dispatch(self):
         st.header("OCR App")
@@ -34,7 +36,7 @@ class OCR_App_Page(Page):
             content = st.sidebar.file_uploader("Choose a content image", type=['png', 'jpg', 'jpeg'])
             if content:
                 image = np.asarray(Image.open(content).convert('RGB'))
-                image, text = OCR_Reader(image).read_text()
+                image, text = self.reader.read_text(image)
                 st.image(image)
                 st.subheader("Extracted text")
                 for line in text:
