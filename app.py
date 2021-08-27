@@ -55,6 +55,7 @@ class OCR_App_Page(Page):
                 vf = cv2.VideoCapture(tfile.name)
 
                 stframe = st.empty()
+                text = []
 
                 while vf.isOpened():
                     ret, frame = vf.read()
