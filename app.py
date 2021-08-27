@@ -62,9 +62,14 @@ class OCR_App_Page(Page):
                         st.warning("Can't receive frame (stream end?). Exiting ...")
                         break
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    #rescale gray
+                    gray = cv2.resize(gray, (0,0), fx=0.5, fy=0.5)
                     try:
                         image, text = self.reader.read_text(gray)
                         stframe.image(image)
+                        st.subheader("Extracted text")
+                        for line in text:
+                            st.write(line)
                     except:
                         continue
 
