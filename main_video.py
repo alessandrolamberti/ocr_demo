@@ -11,7 +11,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--img_path", help="path of the image",
+        "--video_path", help="path of the image",
         required=True, type=str)
     parser.add_argument(
         "--gpu", help="enable or not gpu usage", default=False, type=bool)
@@ -23,13 +23,33 @@ def main(args):
     output_dir = "output/"
     experiment_id = str(time.strftime("%Y-%m-%d_%H-%M-%S"))
 
-    image = cv2.imread(args.img_path)
+    video = cv2.VideoCapture(args.video_path)
     reader = OCR_Reader(gpu=args.gpu)
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    adapted = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 85, 11)
+    #read video
+    success, image = video.read()
+    frame_width, frame_height = image.shape[:2]
+    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
 
-    image, text, boxes = reader.read_text(adapted)
+    while success:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        img = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 85, 11)
+
+        result = reader.read_text(img)
+        boxes = []
+        text = []
+        for detection in result:
+            if detection[1] not in text:
+                text.append(detection[1])
+                top_left = tuple(detection[0][0])
+                bottom_right = tuple(detection[0][2])
+                boxes.append(f"Box: {top_left + bottom_right}")
+                img = cv2.rectangle(frame,top_left,bottom_right,(0,255,0),2)
+
+    # write output video
+        out.write(img)
+
+
 
     if not os.path.exists(output_dir + experiment_id):
         os.makedirs(output_dir + experiment_id)

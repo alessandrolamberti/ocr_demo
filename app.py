@@ -5,7 +5,7 @@ import tempfile
 import cv2
 
 from ocr.text_reader import OCR_Reader
-from webapp.utils import demo
+from webapp.app_utils import demo
 from webapp.pages import Page, Pages_View
 
 st.set_page_config(page_title="OCR Demo WebApp - Alessandro Lamberti", layout="wide")
@@ -53,26 +53,27 @@ class OCR_App_Page(Page):
                 tfile = tempfile.NamedTemporaryFile(delete=True) 
                 tfile.write(content.read())
                 vf = cv2.VideoCapture(tfile.name)
+                st.subheader("Extracted text")
 
                 stframe = st.empty()
-                text = []
+                index = 0
 
                 while vf.isOpened():
                     ret, frame = vf.read()
                     if not ret:
                         st.warning("Can't receive frame (stream end?). Exiting ...")
                         break
-                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    #rescale gray
-                    gray = cv2.resize(gray, (0,0), fx=0.5, fy=0.5)
-                    try:
-                        image, text = self.reader.read_text(gray)
-                        stframe.image(image)
-                        st.subheader("Extracted text")
-                        for line in text:
-                            st.write(line)
-                    except:
-                        continue
+                    if index % 100 == 0:
+                        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                        # normalize
+                        gray = gray.astype(np.float32) / 255.0                    
+                        try:
+                            image, text = self.reader.read_video(gray)
+                            stframe.image(image)
+                            st.write(text)
+                        except:
+                            continue
+                    index += 1
 
 
 
