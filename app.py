@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 import tempfile
 import cv2
+import numpy as np
 
 from ocr.text_reader import OCR_Reader
 from webapp.app_utils import demo
@@ -29,7 +30,7 @@ class OCR_App_Page(Page):
                     image, text, boxes = self.reader.read_text(image)
                     st.image(image)
 
-                    cols = st.beta_columns(2)
+                    cols = st.columns(2)
                     cols[0].subheader("Extracted text")
                     for line in text:
                         cols[0].text(line)  
@@ -45,7 +46,7 @@ class OCR_App_Page(Page):
         elif option == 'Demo':
             image, modified, text, boxes = demo(gpu=self.gpu)
             st.image([image, modified], caption=['Original image', "Extracted text"])
-            cols = st.beta_columns(2)
+            cols = st.columns(2)
             cols[0].subheader("Extracted text")
             for line in text:
                 cols[0].text(line)  
@@ -56,34 +57,46 @@ class OCR_App_Page(Page):
 
         elif option == 'Custom video':
             st.header("Coming soon")
-            '''
+            
             content = st.sidebar.file_uploader("Choose a video", type=['mp4', 'mkv', 'avi'])
             if content:
                 tfile = tempfile.NamedTemporaryFile(delete=True) 
                 tfile.write(content.read())
                 vf = cv2.VideoCapture(tfile.name)
-                st.subheader("Extracted text")
+                boxes = []
+                text = []
 
                 stframe = st.empty()
                 index = 0
 
+                blank_image = np.zeros((int(vf.get(cv2.CAP_PROP_FRAME_HEIGHT)), 
+                                        int(vf.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                                            3),dtype=np.uint8).fill(255)
+
                 while vf.isOpened():
-                    ret, frame = vf.read()
+                    ret, image = vf.read()
+                    
                     if not ret:
                         st.warning("Can't receive frame (stream end?). Exiting ...")
                         break
-                    if index % 100 == 0:
-                        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                        # normalize
-                        gray = gray.astype(np.float32) / 255.0                    
-                        try:
-                            image, text = self.reader.read_video(gray)
-                            stframe.image(image)
-                            st.write(text)
-                        except:
-                            continue
+                    if index % 30 == 0:
+                        image = image.astype(np.float32) / 255.0                    
+                    result = self.reader.read_video(image)
+                    
+                    if result is not None:
+                        for detection in result:
+                            top_left = tuple(detection[0][0])
+                            bottom_right = tuple(detection[0][2])
+                            text.append(detection[1])
+                            boxes.append(detection[0])
+                            try:
+                                image = cv2.rectangle(image,top_left,bottom_right,(0,255,0),3)
+                                blank_image = cv2.putText(blank_image, detection[1], top_left, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+                            except:
+                                continue
+                    stframe.image(blank_image)
                     index += 1
-            '''
+            
 
 
 
