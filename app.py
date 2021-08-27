@@ -14,12 +14,8 @@ class OCR_App_Page(Page):
     def __init__(self):
         Page.__init__(self, "OCR App")
         st.sidebar.subheader("Parameters:")
-        gpu = st.sidebar.checkbox("Enable GPU usage")
-        batch_size = st.sidebar.slider("Batch size", 1, 10, 1)
-        st.sidebar.write("batch_size>1 will make EasyOCR faster but use more memory")
-        text_threshold = st.sidebar.slider("Text threshold", 0.1, 1.0, 0.7)
-        st.sidebar.write("Text confidence threshold")
-        self.reader = OCR_Reader(gpu=gpu)
+        self.gpu = st.sidebar.checkbox("Enable GPU usage")
+        self.reader = OCR_Reader(gpu=self.gpu)
     
     def dispatch(self):
         st.header("OCR App")
@@ -30,24 +26,37 @@ class OCR_App_Page(Page):
             if content:
                 image = np.asarray(Image.open(content).convert('RGB'))
                 try:
-                    image, text = self.reader.read_text(image)
+                    image, text, boxes = self.reader.read_text(image)
                     st.image(image)
-                    st.subheader("Extracted text")
+
+                    cols = st.beta_columns(2)
+                    cols[0].subheader("Extracted text")
                     for line in text:
-                        st.text(line)    
+                        cols[0].text(line)  
+
+                    cols[1].subheader("Extracted boxes")
+                    for box in boxes:
+                        cols[1].text(box)
                 except:
                     st.error("I'm sorry, something went wrong. Maybe no text was detected, try another image.")        
             else:
                 st.warning("Please choose a valid image file")
         
         elif option == 'Demo':
-            image, modified, text = demo()
+            image, modified, text, boxes = demo(gpu=self.gpu)
             st.image([image, modified], caption=['Original image', "Extracted text"])
-            st.subheader("Extracted text")
+            cols = st.beta_columns(2)
+            cols[0].subheader("Extracted text")
             for line in text:
-                st.text(line)        
+                cols[0].text(line)  
+
+            cols[1].subheader("Extracted boxes")
+            for box in boxes:
+                cols[1].text(box)
 
         elif option == 'Custom video':
+            st.header("Coming soon")
+            '''
             content = st.sidebar.file_uploader("Choose a video", type=['mp4', 'mkv', 'avi'])
             if content:
                 tfile = tempfile.NamedTemporaryFile(delete=True) 
@@ -74,6 +83,7 @@ class OCR_App_Page(Page):
                         except:
                             continue
                     index += 1
+            '''
 
 
 

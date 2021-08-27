@@ -1,6 +1,5 @@
 import easyocr 
 import cv2 
-import numpy as np
 
 class OCR_Reader():
     """
@@ -15,7 +14,8 @@ class OCR_Reader():
         self.reader = easyocr.Reader(languages, gpu=gpu)
 
     def read_text(self, image):
-        result = self.reader.readtext(image)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        result = self.reader.readtext(gray)
         text = []
         boxes = []
         for detection in result:
@@ -23,13 +23,11 @@ class OCR_Reader():
             bottom_right = tuple(detection[0][2])
             text.append(detection[1])
             boxes.append(f"Box: {top_left + bottom_right}")
-            image = cv2.rectangle(image,top_left,bottom_right,(0,255,0),2)
+            try:
+                image = cv2.rectangle(image,top_left,bottom_right,(0,255,0),2)
+            except:
+                continue
         return image, text, boxes
 
     def read_video(self, frame):
-        result = self.reader.readtext(frame)
-        return result
-
-
-    
-
+        return self.reader.readtext(frame)
