@@ -1,0 +1,5 @@
+streamlit==0.86.0
+opencv_contrib_python==4.5.2.54
+easyocr==1.4
+numpy==1.19.5
+Pillow==8.3.1

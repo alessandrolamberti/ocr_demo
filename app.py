@@ -71,7 +71,9 @@ class OCR_App_Page(Page):
 
                 blank_image = np.zeros((int(vf.get(cv2.CAP_PROP_FRAME_HEIGHT)), 
                                         int(vf.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                                            3),dtype=np.uint8).fill(255)
+                                            3),dtype=np.uint8)
+                
+                blank_image.fill(255)
 
                 while vf.isOpened():
                     ret, image = vf.read()
@@ -92,9 +94,9 @@ class OCR_App_Page(Page):
                             try:
                                 image = cv2.rectangle(image,top_left,bottom_right,(0,255,0),3)
                                 blank_image = cv2.putText(blank_image, detection[1], top_left, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+                                stframe.image(blank_image)
                             except:
                                 continue
-                    stframe.image(blank_image)
                     index += 1
             
 
