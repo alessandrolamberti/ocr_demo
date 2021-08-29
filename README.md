@@ -18,12 +18,10 @@ Install instructions
   pip install -r requirements.txt
 ```
 
-
-
-
-
     
 ## Run Locally
+
+This project has been tested using Ubuntu 18.04.5
 
 Open Streamlit webapp
 ```bash

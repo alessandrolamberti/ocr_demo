@@ -26,10 +26,7 @@ def main(args):
     image = cv2.imread(args.img_path)
     reader = OCR_Reader(gpu=args.gpu)
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    adapted = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 85, 11)
-
-    image, text, boxes = reader.read_text(adapted)
+    image, text, boxes = reader.read_text(image)
 
     if not os.path.exists(output_dir + experiment_id):
         os.makedirs(output_dir + experiment_id)

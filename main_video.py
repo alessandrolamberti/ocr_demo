@@ -20,6 +20,7 @@ def parse_args():
 def main(args):
     output_dir = "output/"
     experiment_id = str(time.strftime("%Y-%m-%d_%H-%M-%S"))
+    
     if not os.path.exists(output_dir + experiment_id):
             os.makedirs(output_dir + experiment_id)
     

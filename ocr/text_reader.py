@@ -15,6 +15,7 @@ class OCR_Reader():
 
     def read_text(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        adapted = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 85, 11)
         result = self.reader.readtext(gray)
         text = []
         boxes = []
@@ -30,4 +31,6 @@ class OCR_Reader():
         return image, text, boxes
 
     def read_video(self, frame):
-        return self.reader.readtext(frame)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        return self.reader.readtext(gray)

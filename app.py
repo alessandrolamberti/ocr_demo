@@ -56,9 +56,9 @@ class OCR_App_Page(Page):
                 cols[1].text(box)
 
         elif option == 'Custom video':
-            st.header("Coming soon")
-            
-            content = st.sidebar.file_uploader("Choose a video", type=['mp4', 'mkv', 'avi'])
+            st.subheader("Coming soon!")
+            '''
+             content = st.sidebar.file_uploader("Choose a video", type=['mp4', 'mkv', 'avi'])
             if content:
                 tfile = tempfile.NamedTemporaryFile(delete=True) 
                 tfile.write(content.read())
@@ -67,7 +67,6 @@ class OCR_App_Page(Page):
                 text = []
 
                 stframe = st.empty()
-                index = 0
 
                 blank_image = np.zeros((int(vf.get(cv2.CAP_PROP_FRAME_HEIGHT)), 
                                         int(vf.get(cv2.CAP_PROP_FRAME_WIDTH)),
@@ -81,8 +80,7 @@ class OCR_App_Page(Page):
                     if not ret:
                         st.warning("Can't receive frame (stream end?). Exiting ...")
                         break
-                    if index % 30 == 0:
-                        image = image.astype(np.float32) / 255.0                    
+                    image = image.astype(np.float32) / 255.0                    
                     result = self.reader.read_video(image)
                     
                     if result is not None:
@@ -97,8 +95,7 @@ class OCR_App_Page(Page):
                                 stframe.image(blank_image)
                             except:
                                 continue
-                    index += 1
-            
+            '''
 
 
 
