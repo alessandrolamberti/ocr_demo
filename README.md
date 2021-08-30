@@ -75,4 +75,9 @@ On the main_video.py, the output will be a new video, with the high-lighted text
 
 As of now, it works with images only, and the output is the same as in main.py
 
+
+ ## Demo image
+
+ 
+
   
