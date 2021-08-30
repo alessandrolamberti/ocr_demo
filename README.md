@@ -78,6 +78,7 @@ As of now, it works with images only, and the output is the same as in main.py
 
  ## Demo image
 
- 
+![alt text](https://github.com/lamb-does-code/ocr_demo/blob/main/webapp/demo.png)
+
 
   
